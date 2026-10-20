@@ -78,37 +78,25 @@ let sb=null,user=null,ready=false,needLogin=false,syncT=null,cloudTxt='Modo loca
 function setCS(t){cloudTxt=t;const el=document.getElementById('cs');if(el)el.textContent=t}
 const save=()=>{try{localStorage.setItem(K,JSON.stringify(S));localStorage.setItem(DK,'1')}catch(e){}clearTimeout(syncT);syncT=setTimeout(push,1000)};
 async function push(){
- if(!sb||!user||!ready)return;
- const{error}=await sb.from('gym_data').upsert({user_id:user.id,data:S,updated_at:new Date().toISOString()});
+ if(!sb||!ready)return;
+ const{error}=await sb.rpc('gym_put',{p_code:GYM_CODE,p_data:S});
  if(error){setCS('No se pudo guardar en la nube: '+error.message);return}
  try{localStorage.removeItem(DK)}catch(e){}setCS('☁ Guardado en la nube')}
 async function pull(){
- const{data,error}=await sb.from('gym_data').select('data').eq('user_id',user.id).maybeSingle();
- needLogin=false;
+ const{data,error}=await sb.rpc('gym_get',{p_code:GYM_CODE});
  if(error){setCS('No se pudo leer la nube: '+error.message);render(1);return}
- const r=data&&data.data;let dirty=false;try{dirty=localStorage.getItem(DK)==='1'}catch(e){}
+ const r=data;let dirty=false;try{dirty=localStorage.getItem(DK)==='1'}catch(e){}
  if(r&&r.sessions){
   if(dirty){const ids=new Set(r.sessions.map(x=>x.id));S={sessions:r.sessions.concat(S.sessions.filter(x=>!ids.has(x.id))),units:Object.assign({},S.units,r.units)}}
   else S={sessions:r.sessions,units:r.units||{}}}
  ready=true;ensureUnits();try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}
  if(!r||dirty)await push();else setCS('☁ Guardado en la nube');
  render(1)}
-function vLogin(){return `<h1>Mi Gym</h1><div class="card"><h2>Iniciá sesión</h2><p class="mut">Tus datos quedan guardados en tu cuenta y los ves desde cualquier celular.</p>
- <input id="lm" type="email" placeholder="Email" autocomplete="email" style="margin-top:8px"><input id="lp" type="password" placeholder="Contraseña (mínimo 6)" autocomplete="current-password" style="margin-top:8px">
- <div class="row" style="margin-top:10px"><button class="p" onclick="auth('in')">Entrar</button><button onclick="auth('up')">Crear cuenta</button></div><p class="mut" id="lmsg"></p></div>`}
-async function auth(m){const e=document.getElementById('lm').value.trim(),p=document.getElementById('lp').value,msg=document.getElementById('lmsg');
- msg.textContent='Un momento…';
- const r=m==='in'?await sb.auth.signInWithPassword({email:e,password:p}):await sb.auth.signUp({email:e,password:p});
- if(r.error){msg.textContent=r.error.message;return}
- if(!r.data.session){msg.textContent='Te mandamos un mail para confirmar la cuenta. Confirmalo y después tocá Entrar.';return}
- user=r.data.session.user;await pull()}
 async function initCloud(){
- if(!window.supabase||!window.SUPABASE_URL||String(window.SUPABASE_URL).includes('TU-')){setCS('Modo local: falta configurar Supabase en config.js');return}
+ if(!window.supabase||!window.SUPABASE_URL||!window.GYM_CODE||String(window.SUPABASE_URL).includes('TU-')){setCS('Modo local: falta configurar Supabase en config.js');return}
  sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
- const{data}=await sb.auth.getSession();
- if(data.session){user=data.session.user;await pull()}else{needLogin=true;render()}
- sb.auth.onAuthStateChange((ev)=>{if(ev==='SIGNED_OUT'){user=null;ready=false;needLogin=true;render()}});
- document.addEventListener('visibilitychange',()=>{if(!document.hidden&&user&&ready&&localStorage.getItem(DK)!=='1')pull()})}
+ await pull();
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ready&&localStorage.getItem(DK)!=='1')pull()})}
 const iso=d=>d.toLocaleDateString('sv');
 const today=()=>iso(new Date());
 const D=s=>new Date(s+'T00:00');
