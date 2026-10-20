@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mi Gym</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mi Gym">
+<meta name="theme-color" content="#1F4FD8">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#E9EBEE;--card:#fff;--ink:#151B26;--mut:#6B7280;--line:#D5D9E0;--acc:#1F4FD8;--accT:#fff;--pr:#E0A100;--soft:#EEF1F8;--bad:#C0392B;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12151B;--card:#1B2029;--ink:#EDEFF3;--mut:#9AA3B2;--line:#2C3340;--acc:#6C93FF;--accT:#0D1220;--pr:#F2B705;--soft:#242B38;--bad:#FF7A6B}}
+:root[data-theme="dark"]{--bg:#12151B;--card:#1B2029;--ink:#EDEFF3;--mut:#9AA3B2;--line:#2C3340;--acc:#6C93FF;--accT:#0D1220;--pr:#F2B705;--soft:#242B38;--bad:#FF7A6B}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 16px/1.4 Barlow,system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+main{max-width:520px;margin:0 auto;padding:14px 14px 96px}
+h1,h2,h3,.num{font-family:'Barlow Condensed',Impact,sans-serif;font-weight:700;margin:0;letter-spacing:.01em}
+h1{font-size:34px;line-height:1}
+h2{font-size:22px}
+.card{background:var(--card);border-radius:14px;padding:14px;margin:12px 0;border:1px solid var(--line)}
+.mut{color:var(--mut);font-size:14px}
+input,select,textarea,button{font:inherit;color:inherit}
+input,select,textarea{background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:10px;width:100%}
+textarea{resize:vertical;min-height:44px}
+button{border:0;border-radius:9px;padding:10px 14px;background:var(--soft);cursor:pointer;font-weight:600}
+button.p{background:var(--acc);color:var(--accT)}
+button.x{background:none;color:var(--bad);padding:8px}
+.row{display:flex;gap:8px;align-items:center}
+.sets{display:grid;grid-template-columns:26px 1fr 1fr 88px 30px;gap:6px;align-items:center;margin:10px 0 6px}
+.sets .n{font-family:'Barlow Condensed';font-size:20px;color:var(--mut);text-align:center}
+.sets input{text-align:center;padding:10px 4px}
+.tag{padding:8px 2px;font-size:12px;border-radius:9px;background:var(--soft);color:var(--mut);width:100%}
+.tag.on{background:var(--acc);color:var(--accT)}
+.last{background:var(--soft);border-left:4px solid var(--acc);border-radius:6px;padding:8px 10px;margin:8px 0;font-size:15px}
+.last em{color:var(--mut)}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+nav button{flex:1;background:none;font-family:'Barlow Condensed';font-size:19px;color:var(--mut);padding:10px}
+nav button.on{color:var(--acc)}
+.timer{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 10px;display:flex;gap:6px;align-items:center;margin:10px 0}
+.timer .num{font-size:28px;min-width:64px}
+.timer button{padding:8px 10px;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--soft);border-radius:10px;padding:10px;text-align:center}
+.stat .num{font-size:30px;line-height:1}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:8px}
+.cal div{aspect-ratio:1;border-radius:6px;background:var(--soft);font-size:11px;color:var(--mut);display:flex;align-items:center;justify-content:center}
+.cal .y{background:var(--acc);color:var(--accT)}
+.cal .t{outline:2px solid var(--ink)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.chip{padding:6px 10px;font-size:14px}
+.chip.on{background:var(--acc);color:var(--accT)}
+.pr{color:var(--pr)}
+.tg{display:flex;align-items:center;gap:8px;flex:1;cursor:pointer;min-height:44px;min-width:0}.tg h2{margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tg span{color:var(--mut);width:14px}
+button.x.ask{background:var(--bad);color:#fff}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<nav><button id="t-hoy" onclick="go('hoy')">Entrenar</button><button id="t-his" onclick="go('his')">Historial</button><button id="t-pro" onclick="go('pro')">Progreso</button></nav>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+const K='gymlog.v1',TAGS=['','Me costó','Liviano','Pesado','Fácil'],UN=['kg','kg/lado','barritas'];
+let S={sessions:[]};
+try{S=JSON.parse(localStorage.getItem(K))||S}catch(e){}
+function ensureUnits(){S.units=S.units||{};const t={};[...S.sessions].sort((a,b)=>a.date.localeCompare(b.date)).forEach(s=>s.ex.forEach(e=>{t[e.n.toLowerCase()]=e.u}));Object.keys(t).forEach(k=>{if(!(k in S.units))S.units[k]=t[k]})}
+ensureUnits();
+const DK='gymlog.dirty';
+let sb=null,user=null,ready=false,needLogin=false,syncT=null,cloudTxt='Modo local (sin nube)';
+function setCS(t){cloudTxt=t;const el=document.getElementById('cs');if(el)el.textContent=t}
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(S));localStorage.setItem(DK,'1')}catch(e){}clearTimeout(syncT);syncT=setTimeout(push,1000)};
+async function push(){
+ if(!sb||!user||!ready)return;
+ const{error}=await sb.from('gym_data').upsert({user_id:user.id,data:S,updated_at:new Date().toISOString()});
+ if(error){setCS('No se pudo guardar en la nube: '+error.message);return}
+ try{localStorage.removeItem(DK)}catch(e){}setCS('☁ Guardado en la nube')}
+async function pull(){
+ const{data,error}=await sb.from('gym_data').select('data').eq('user_id',user.id).maybeSingle();
+ needLogin=false;
+ if(error){setCS('No se pudo leer la nube: '+error.message);render(1);return}
+ const r=data&&data.data;let dirty=false;try{dirty=localStorage.getItem(DK)==='1'}catch(e){}
+ if(r&&r.sessions){
+  if(dirty){const ids=new Set(r.sessions.map(x=>x.id));S={sessions:r.sessions.concat(S.sessions.filter(x=>!ids.has(x.id))),units:Object.assign({},S.units,r.units)}}
+  else S={sessions:r.sessions,units:r.units||{}}}
+ ready=true;ensureUnits();try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}
+ if(!r||dirty)await push();else setCS('☁ Guardado en la nube');
+ render(1)}
+function vLogin(){return `<h1>Mi Gym</h1><div class="card"><h2>Iniciá sesión</h2><p class="mut">Tus datos quedan guardados en tu cuenta y los ves desde cualquier celular.</p>
+ <input id="lm" type="email" placeholder="Email" autocomplete="email" style="margin-top:8px"><input id="lp" type="password" placeholder="Contraseña (mínimo 6)" autocomplete="current-password" style="margin-top:8px">
+ <div class="row" style="margin-top:10px"><button class="p" onclick="auth('in')">Entrar</button><button onclick="auth('up')">Crear cuenta</button></div><p class="mut" id="lmsg"></p></div>`}
+async function auth(m){const e=document.getElementById('lm').value.trim(),p=document.getElementById('lp').value,msg=document.getElementById('lmsg');
+ msg.textContent='Un momento…';
+ const r=m==='in'?await sb.auth.signInWithPassword({email:e,password:p}):await sb.auth.signUp({email:e,password:p});
+ if(r.error){msg.textContent=r.error.message;return}
+ if(!r.data.session){msg.textContent='Te mandamos un mail para confirmar la cuenta. Confirmalo y después tocá Entrar.';return}
+ user=r.data.session.user;await pull()}
+async function initCloud(){
+ if(!window.supabase||!window.SUPABASE_URL||String(window.SUPABASE_URL).includes('TU-')){setCS('Modo local: falta configurar Supabase en config.js');return}
+ sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+ const{data}=await sb.auth.getSession();
+ if(data.session){user=data.session.user;await pull()}else{needLogin=true;render()}
+ sb.auth.onAuthStateChange((ev)=>{if(ev==='SIGNED_OUT'){user=null;ready=false;needLogin=true;render()}});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&user&&ready&&localStorage.getItem(DK)!=='1')pull()})}
+const iso=d=>d.toLocaleDateString('sv');
+const today=()=>iso(new Date());
+const D=s=>new Date(s+'T00:00');
+const fd=s=>D(s).toLocaleDateString('es',{weekday:'short',day:'numeric',month:'short'});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let col=new Set(),openS=new Set(),pend='',pt=null,rsArm=false,tab='hoy',date=today(),selEx='',selU='',tmr=null,tleft=0,tmTxt='Descanso';
+const cs=()=>S.sessions.find(s=>s.date===date);
+const names=()=>[...new Set(S.sessions.flatMap(s=>s.ex.map(e=>e.n)))].sort();
+const sorted=()=>[...S.sessions].sort((a,b)=>b.date.localeCompare(a.date));
+function lastOf(n,before){const k=n.trim().toLowerCase();for(const s of sorted()){if(before&&s.date>=before)continue;const e=s.ex.find(e=>e.n.toLowerCase()===k);if(e)return{s,e}}return null}
+function fmtSets(e){const out=[];e.sets.forEach(x=>{const k=x.r+'|'+x.w,l=out[out.length-1];if(l&&l.k===k)l.c++;else out.push({k,c:1,r:x.r,w:x.w})});
+ return out.map(g=>`${g.c}×${g.r||'?'}${g.w!==''?' @ '+g.w:''}`).join(', ')+(e.sets.some(x=>x.w!=='')?' '+e.u:'')}
+function go(t){tab=t;render()}
+const uid=()=>Math.random().toString(36).slice(2,9);
+function tg(id){col.has(id)?col.delete(id):col.add(id);render(1)}
+function tgS(id){openS.has(id)?openS.delete(id):openS.add(id);render(1)}
+function conf(k){if(pend===k){pend='';return true}pend=k;render(1);clearTimeout(pt);pt=setTimeout(()=>{pend='';render(1)},3000);return false}
+function render(keep){
+ ['hoy','his','pro'].forEach(t=>document.getElementById('t-'+t).classList.toggle('on',t===tab));
+ document.querySelector('nav').style.display=needLogin?'none':'';
+ document.getElementById('app').innerHTML=needLogin?vLogin():tab==='hoy'?vHoy():tab==='his'?vHis():vPro();
+ if(!keep)window.scrollTo(0,0)}
+function vHoy(){
+ const s=cs(),isT=date===today();
+ let h=`<div class="row" style="justify-content:space-between"><h1>${isT?'Hoy':fd(date)}</h1><input type="date" value="${date}" style="width:auto" onchange="date=this.value||today();render()"></div>
+ <div class="timer"><span class="num" id="tm">${tmTxt}</span><span style="flex:1"></span><button onclick="rest(60)">1:00</button><button onclick="rest(90)">1:30</button><button onclick="rest(120)">2:00</button></div>`;
+ if(s)s.ex.forEach((e,i)=>{if(!e.id)e.id=uid();
+  const l=lastOf(e.n,date);
+  const open=!col.has(e.id),ask=pend==='e'+e.id;
+  h+=`<div class="card"><div class="row"><div class="tg" onclick="tg('${e.id}')"><span>${open?'▾':'▸'}</span><h2>${esc(e.n)}</h2></div>
+  ${open?`<select style="width:auto" onchange="S2(${i},'u',this.value)">${UN.map(u=>`<option${u===e.u?' selected':''}>${u}</option>`).join('')}</select>`:`<span class="mut" onclick="tg('${e.id}')">${e.u}</span>`}
+  <button class="x${ask?' ask':''}" onclick="delEx(${i})" aria-label="Borrar ejercicio">${ask?'¿Borrar?':'✕'}</button></div>
+  ${open?`  <div class="last">${l?`Última vez (${fd(l.s.date)}): <b>${fmtSets(l.e)}</b>${l.e.note?`<br><em>“${esc(l.e.note)}”</em>`:''}`:'Primera vez que lo registrás.'}</div>
+  <div class="sets mut" style="margin-bottom:0;font-size:12px"><span></span><span style="text-align:center">Reps</span><span style="text-align:center">${e.u}</span><span style="text-align:center">Sensación</span><span></span></div>
+  <div id="sets${i}">${e.sets.map((x,j)=>setRow(i,j,x)).join('')}</div>
+  <div class="row"><button onclick="addSet(${i})">+ Serie</button><span style="flex:1"></span></div>
+  <textarea placeholder="Comentarios (la última me costó, usé poco peso…)" oninput="S2(${i},'note',this.value)">${esc(e.note||'')}</textarea>`:''}</div>`});
+ h+=`<div class="card"><h2>Agregar ejercicio</h2><input id="nx" list="nl" placeholder="Ej: Press banca" autocomplete="off" oninput="pu(this.value)" style="margin-top:8px"><div class="row" style="margin-top:8px"><select id="nu">${UN.map(u=>`<option>${u}</option>`).join('')}</select><datalist id="nl">${names().map(n=>`<option value="${esc(n)}">`).join('')}</datalist><button class="p" onclick="addEx()">Agregar</button></div>
+ <p class="mut" style="margin:8px 0 0">El tipo de peso queda asociado al ejercicio: lo elegís una sola vez y después se carga solo. Si ya lo hiciste antes, también se cargan las series de la última vez.</p></div>`;
+ if(s&&!s.ex.length)h+='';
+ return h}
+function setRow(i,j,x){return `<div class="sets"><span class="n">${j+1}</span>
+ <input inputmode="numeric" value="${x.r}" oninput="SV(${i},${j},'r',this.value)" aria-label="Repeticiones">
+ <input inputmode="decimal" value="${x.w}" oninput="SV(${i},${j},'w',this.value)" aria-label="Peso">
+ <button class="tag${x.t?' on':''}" onclick="cyc(${i},${j},this)">${x.t||'—'}</button>
+ <button class="x" style="padding:4px" onclick="delSet(${i},${j})" aria-label="Quitar serie">−</button></div>`}
+function pu(v){const u=S.units[v.trim().toLowerCase()];if(u)document.getElementById('nu').value=u}
+function S2(i,k,v){const e=cs().ex[i];e[k]=v;if(k==='u')S.units[e.n.toLowerCase()]=v;save();if(k==='u')render(1)}
+function SV(i,j,k,v){cs().ex[i].sets[j][k]=v.replace(',','.');save()}
+function cyc(i,j,b){const x=cs().ex[i].sets[j];x.t=TAGS[(TAGS.indexOf(x.t||'')+1)%TAGS.length];save();b.textContent=x.t||'—';b.classList.toggle('on',!!x.t)}
+function addEx(){let n=document.getElementById('nx').value.trim();if(!n)return;
+ const known=names().find(k=>k.toLowerCase()===n.toLowerCase());if(known)n=known;
+ let s=cs();if(!s){s={id:Date.now(),date,ex:[]};S.sessions.push(s)}
+ const l=lastOf(n,date);
+ const k=n.toLowerCase(),u=S.units[k]||(l?l.e.u:document.getElementById('nu').value);S.units[k]=u;
+ s.ex.push({id:uid(),n,u,note:'',sets:l?l.e.sets.map(x=>({r:x.r,w:x.w,t:''})):[{r:'',w:'',t:''}]});save();render(1)}
+function addSet(i){const a=cs().ex[i].sets,l=a[a.length-1]||{r:'',w:''};a.push({r:l.r,w:l.w,t:''});save();render(1)}
+function delSet(i,j){cs().ex[i].sets.splice(j,1);save();render(1)}
+function delEx(i){const s=cs(),e=s.ex[i];if(!conf('e'+e.id))return;s.ex.splice(i,1);if(!s.ex.length)S.sessions=S.sessions.filter(x=>x!==s);save();render(1)}
+function rest(sec){clearInterval(tmr);tleft=sec;tick();tmr=setInterval(tick,1000)}
+function tick(){const el=document.getElementById('tm');
+ if(tleft<0){clearInterval(tmr);tmTxt='¡Dale!';try{navigator.vibrate&&navigator.vibrate([250,100,250])}catch(e){}}
+ else tmTxt=Math.floor(tleft/60)+':'+String(tleft%60).padStart(2,'0');
+ if(el)el.textContent=tmTxt;tleft--}
+function vHis(){
+ const l=sorted();
+ let h='<h1>Historial</h1>';
+ if(!l.length)return h+'<div class="card mut">Todavía no registraste ninguna sesión. Empezá en “Entrenar”.</div>';
+ l.forEach(s=>{const o=openS.has(s.id),ask=pend==='s'+s.id;
+ h+=`<div class="card"><div class="row"><div class="tg" onclick="tgS(${s.id})"><span>${o?'▾':'▸'}</span><h2 style="text-transform:capitalize">${fd(s.date)}</h2><span class="mut" style="width:auto">${s.ex.length} ej.</span></div><button class="x${ask?' ask':''}" onclick="delS(${s.id})" aria-label="Borrar sesión">${ask?'¿Borrar?':'✕'}</button></div>
+ ${o?s.ex.map(e=>`<div style="margin-top:8px"><b>${esc(e.n)}</b><br><span class="mut">${fmtSets(e)}${e.note?` · “${esc(e.note)}”`:''}</span></div>`).join('')+`<div style="margin-top:12px"><button onclick="date='${s.date}';go('hoy')">Editar</button></div>`:''}</div>`});
+ return h}
+function delS(id){if(!conf('s'+id))return;S.sessions=S.sessions.filter(s=>s.id!==id);save();render(1)}
+function monday(d){const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
+function vPro(){
+ let h='<h1>Progreso</h1>';
+ if(!S.sessions.length)return h+'<div class="card mut">Cuando tengas sesiones guardadas vas a ver tu evolución acá.</div>';
+ const set=new Set(S.sessions.map(s=>s.date)),m0=monday(new Date()),wk=iso(m0);
+ const thisW=S.sessions.filter(s=>s.date>=wk).length;
+ let streak=0,w=new Date(m0);if(!thisW)w.setDate(w.getDate()-7);
+ while(S.sessions.some(s=>s.date>=iso(w)&&s.date<iso(new Date(w.getTime()+7*864e5)))){streak++;w.setDate(w.getDate()-7)}
+ const last30=S.sessions.filter(s=>(Date.now()-D(s.date))/864e5<=30).length;
+ h+=`<div class="card"><div class="stats"><div class="stat"><div class="num">${thisW}</div><div class="mut">esta semana</div></div><div class="stat"><div class="num">${last30}</div><div class="mut">últimos 30 días</div></div><div class="stat"><div class="num">${streak}</div><div class="mut">semanas seguidas</div></div></div><div class="cal">`;
+ const st=new Date(m0);st.setDate(st.getDate()-28);
+ for(let i=0;i<35;i++){const d=new Date(st);d.setDate(st.getDate()+i);const k=iso(d);h+=`<div class="${set.has(k)?'y':''} ${k===today()?'t':''}">${d.getDate()}</div>`}
+ h+='</div></div>';
+ const ns=names();if(!selEx||!ns.includes(selEx))selEx=ns[0];
+ h+=`<div class="card"><h2>Evolución por ejercicio</h2><select style="margin-top:8px" onchange="selEx=this.value;selU='';render(1)">${ns.map(n=>`<option${n===selEx?' selected':''}>${esc(n)}</option>`).join('')}</select>`;
+ const all=sorted().reverse().map(s=>({d:s.date,e:s.ex.find(e=>e.n===selEx)})).filter(x=>x.e);
+ const us=[...new Set(all.map(x=>x.e.u))];if(!selU||!us.includes(selU))selU=all[all.length-1].e.u;
+ if(us.length>1)h+=`<div class="chips">${us.map(u=>`<button class="chip${u===selU?' on':''}" onclick="selU='${u}';render()">${u}</button>`).join('')}</div>`;
+ const pts=all.filter(x=>x.e.u===selU).map(x=>{const ws=x.e.sets.map(s=>parseFloat(s.w)).filter(n=>!isNaN(n));
+  let vol=0,e1=0;x.e.sets.forEach(s=>{const r=parseFloat(s.r),w=parseFloat(s.w);if(r&&w){vol+=r*w;e1=Math.max(e1,w*(1+r/30))}});
+  return{d:x.d,w:ws.length?Math.max(...ws):null,vol,e1}}).filter(p=>p.w!==null);
+ if(pts.length<1)h+='<p class="mut">Sin pesos cargados para este ejercicio.</p>';
+ else{
+  const pr=Math.max(...pts.map(p=>p.w)),f=pts[0],l=pts[pts.length-1],dv=+(l.w-f.w).toFixed(2);
+  h+=`<div class="stats" style="margin:10px 0"><div class="stat"><div class="num pr">${pr}</div><div class="mut">récord ${selU}</div></div><div class="stat"><div class="num">${dv>0?'+':''}${dv}</div><div class="mut">desde el inicio</div></div><div class="stat"><div class="num">${pts.length}</div><div class="mut">sesiones</div></div></div>`;
+  if(pts.length>1)h+=chart(pts);else h+='<p class="mut">Con una segunda sesión aparece el gráfico.</p>';
+  if(selU==='kg'){const b=Math.max(...pts.map(p=>p.e1));if(b)h+=`<p class="mut" style="margin:8px 0 0">1RM estimado (mejor): <b>${Math.round(b)} kg</b> · Volumen última sesión: <b>${Math.round(l.vol)} kg</b></p>`}
+  else h+=`<p class="mut" style="margin:8px 0 0">Volumen última sesión: <b>${Math.round(l.vol)}</b> (reps × ${selU})</p>`;
+ }
+ h+='</div>';
+ h+=`<div class="card"><h2>Respaldo</h2><p class="mut" id="cs">${cloudTxt}</p><p class="mut">Igual podés copiar un respaldo manual de vez en cuando por las dudas.</p>
+ <div class="row"><button onclick="bk()">Copiar respaldo</button><button onclick="rs(this)">Restaurar</button></div>${user?`<button style="margin-top:8px" onclick="sb.auth.signOut()">Cerrar sesión (${esc(user.email)})</button>`:''}<textarea id="bk" placeholder="Pegá acá un respaldo para restaurar" style="margin-top:8px"></textarea></div>`;
+ return h}
+function chart(p){const W=340,H=150,P=30,ys=p.map(x=>x.w),mn=Math.min(...ys),mx=Math.max(...ys),r=(mx-mn)||1;
+ const X=i=>P+i*(W-P-10)/(p.length-1),Y=v=>H-24-(v-mn)/r*(H-50);
+ const pts=p.map((x,i)=>`${X(i)},${Y(x.w)}`).join(' ');
+ return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Gráfico de evolución"><polyline points="${pts}" fill="none" stroke="var(--acc)" stroke-width="3" stroke-linejoin="round"/>
+ ${p.map((x,i)=>`<circle cx="${X(i)}" cy="${Y(x.w)}" r="${x.w===mx?6:4}" fill="${x.w===mx?'var(--pr)':'var(--acc)'}"/>`).join('')}
+ <text x="4" y="${Y(mx)+4}" font-size="11" fill="var(--mut)">${mx}</text><text x="4" y="${Y(mn)+4}" font-size="11" fill="var(--mut)">${mn}</text>
+ <text x="${P}" y="${H-6}" font-size="11" fill="var(--mut)">${fd(p[0].d)}</text><text x="${W-10}" y="${H-6}" font-size="11" fill="var(--mut)" text-anchor="end">${fd(p[p.length-1].d)}</text></svg>`}
+function bk(){const t=JSON.stringify(S),a=document.getElementById('bk');a.value=t;a.select();try{navigator.clipboard.writeText(t)}catch(e){}}
+function rs(b){try{const o=JSON.parse(document.getElementById('bk').value);if(!o.sessions)throw 0;if(!rsArm){rsArm=true;b.textContent='Tocá de nuevo para confirmar';return}rsArm=false;S=o;ensureUnits();save();render()}catch(e){rsArm=false;b.textContent='Respaldo inválido'}}
+render();
+initCloud();
+</script>
+</body>
+</html>
